@@ -8,6 +8,21 @@ description: |
 grade: devel # must be 'stable' to release into candidate/stable channels
 confinement: strict
 
+environment:
+  # This is to find the intel.icd file, containing the path to libigdrcl.so
+  # Required for Intel GPU detection and communication
+  OCL_ICD_VENDORS: $SNAP/etc/OpenCL/vendors
+
+layout:
+  # OpenCL looks in /etc/OpenCL/vendors for .icd files containing the paths to shared objects
+  /etc/OpenCL/vendors:
+    bind: $SNAP/etc/OpenCL/vendors
+  # Intel icd files use an absolute path to Intel OpenCL shared objects. Use a layout to mount the so files at the expected location
+  /usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/intel-opencl:
+    bind: $SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/intel-opencl
+  # NVIDIA icd specifies only the shared object name: libnvidia-opencl.so.1
+  # libnvidia-opencl.so.1 is inside /snap/stack-utils/x3/usr/lib/x86_64-linux-gnu/, which is already in LD_LIBRARY_PATH
+
 parts:
   my-app:
     plugin: python
